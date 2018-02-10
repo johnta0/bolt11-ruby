@@ -8,3 +8,4 @@ gemspec
 gem 'bitcoin-ruby'
 gem 'bech32', :git => 'git://github.com/johnta0/bech32rb',
               :branch => 'master'
+gem 'bases'
