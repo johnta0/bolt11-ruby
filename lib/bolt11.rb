@@ -1,6 +1,6 @@
 require "bolt11/version"
-require "bech32"
 require "bolt11/lnaddr"
+require "bech32"
 
 module Bolt11
 
@@ -18,18 +18,20 @@ module Bolt11
 
   def lndecode(invoice)
     # hrp, data = Bech32.decode(invoice, 1024) # FIXME: max_length should be maximum number, but this expression should be changed in the future
-    hrp, data = Bech32.decode(invoice) # TODO: Temporarily using Fork version of mine, but original gem should be used (will upjjjjjjjjjjjj after gem is updated)
+    hrp, data = Bech32.decode(invoice) # TODO: Temporarily using my fork, but original gem should be used (will update after gem is updated)
     return nil if hrp.nil?
     # A reader MUST fail if it does not understand the `prefix`.
     return nil unless hrp.start_with?('ln')
-    # return nil if data.length < 65 * 8
+
+    data_bn = String.new
+    data.each{|a|data_bn += format("%04d", a.to_s(2))}
+    return nil if data.length < 65 * 8
 
     lnaddr = LnAddr.new
     lnaddr.pubkey = nil
 
     lnaddr.currency, lnaddr.amount, lnaddr.multiplier = split_hrp(hrp)
     lnaddr.timestamp = from_base32_to_base10(data[0..6])
-
     # A reader MUST use the `n` field to validate the signature instead of
     # performing signature recovery if a valid `n` field is provided.
 
@@ -57,12 +59,12 @@ module Bolt11
 
   end
 
-  def from_base32_to_base10(base32) # the argument should be array
-    len = base32.length
+  def from_base32_to_base10(arr)
+    len = arr.length
     base10 = 0
-    base32.each_with_index do |val, i|
+    arr.each_with_index do |val, i|
         i = len - 1 - i
-        base10 += val * (32 ** i)
+        base10 |= val << (5 * i)
     end
     base10
   end
