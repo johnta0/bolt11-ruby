@@ -1,10 +1,3 @@
-GIT
-  remote: git://github.com/johnta0/bech32rb
-  revision: 8573276f373055d87c3a009145b674245e999690
-  branch: master
-  specs:
-    bech32 (1.0.3)
-
 PATH
   remote: .
   specs:
@@ -13,7 +6,8 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    bitcoin-ruby (0.0.15)
+    bech32 (1.0.4)
+    bitcoin-ruby (0.0.17)
     diff-lcs (1.3)
     rake (10.5.0)
     rspec (3.7.0)
@@ -34,7 +28,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bech32!
+  bech32
   bitcoin-ruby
   bolt11!
   bundler (~> 1.16)

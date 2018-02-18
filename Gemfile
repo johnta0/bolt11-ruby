@@ -6,5 +6,4 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 gemspec
 
 gem 'bitcoin-ruby'
-gem 'bech32', :git => 'git://github.com/johnta0/bech32rb',
-              :branch => 'master'
+gem 'bech32'
