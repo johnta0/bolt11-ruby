@@ -12,7 +12,7 @@ class LnAddr
     @payment_hash = nil
     @pubkey = nil
     @signature = nil
-    @short_description
+    @short_description = nil
     @description = nil
     @description_hash = nil
     @expiry = nil

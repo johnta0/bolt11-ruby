@@ -60,7 +60,7 @@ module Bolt11
         when 9
           # fallback on-chain address
         when 3
-          # aiu
+          # line
         else
           p "Unknown type: #{type}"
       end
