@@ -7,4 +7,3 @@ gemspec
 
 gem 'bitcoin-ruby'
 gem 'bech32'
-gem 'pry'
