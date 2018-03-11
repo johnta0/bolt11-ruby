@@ -6,16 +6,6 @@ require "bech32"
 
 module Bolt11
 
-  # 実装済み
-  # - human readable part のデコード
-  # - timestamp の、5-bit array からint へのデコード
-  #
-  # TODO
-  # - pubkey,
-  # - signature,
-  # - description,
-  # - などの tagged fields のデコード
-
   module_function
 
   def lndecode(invoice)
