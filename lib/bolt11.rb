@@ -1,5 +1,7 @@
 require "bolt11/version"
 require "bolt11/lnaddr"
+require "bolt11/routing_info"
+require "bitcoin"
 require "bech32"
 
 module Bolt11
@@ -26,7 +28,7 @@ module Bolt11
     return nil if data_part_bn.length < 65 * 8
 
     lnaddr = LnAddr.new
-    lnaddr.pubkey = nil
+    # lnaddr.pubkey = nil
     lnaddr.currency, lnaddr.amount, lnaddr.multiplier = split_hrp(hrp)
     lnaddr.timestamp = from_base32_to_base10(data_part[0..6])
 
@@ -35,9 +37,9 @@ module Bolt11
     cursor = 0
     while cursor < tagged_fields.length
       type = tagged_fields[cursor]
-      data_length = (tagged_fields[cursor + 1] << 5) + (tagged_fields[cursor + 2])
+      data_length = (tagged_fields[cursor + 1] << 5) + tagged_fields[cursor + 2]
       data = tagged_fields[cursor + 3..cursor + 3 + data_length]
-
+      bitarray = u5_to_bitarray(data)
       cursor += 3 + data_length
 
       case type
@@ -46,21 +48,39 @@ module Bolt11
             lnaddr.unknown_tags.push([type, data_length])
             next
           end
-          lnaddr.payment_hash = data
+          lnaddr.payment_hash = bitarray[0..65].pack('C*')
         when 13
-          lnaddr.short_description = data
+          lnaddr.short_description = bitarray.pack('C*').force_encoding('utf-8')
         when 19
-          lnaddr.pubkey = data
+          lnaddr.pubkey = bitarray[0..67].pack('C*')
         when 23
-          lnaddr.description = data
+          lnaddr.description = bitarray[0..65].pack('C*')
         when 6
-          lnaddr.expiry = data
+          lnaddr.expiry = from_base32_to_base10(data)
         when 24
-          # min_final_cltv_expiry
         when 9
-          # fallback on-chain address
+          address = u5_to_bitarray(data[1..-1])
+          hex = address.pack('C*').unpack('H*')[0]
+          case data[0]
+            when 0
+              lnaddr.fallback_addr = Bitcoin::Script.to_p2wpkh(hex).to_addr
+            when 17
+              lnaddr.fallback_addr = Bitcoin.encode_base58_address(hex, Bitcoin.chain_params.p2sh_version)
+            when 18
+              lnaddr.fallback_addr = Bitcoin.encode_base58(hex, Bitcoin.chain_params.p2sh_version)
+          end
         when 3
-          # line
+          offset = 0
+          while offset < bitarray.length
+            lnaddr.routing_info = RoutingInfo.new(
+              bitarray[offset..32],
+              bitarray[offset+33..offset+40],
+              from_base32_to_base10([offset+41..offset+44]),
+              from_base32_to_base10([offset+45..offset+48]),
+              from_base32_to_base10([offset+49..offset+50])
+            )
+            offset += 51
+          end
         else
           p "Unknown type: #{type}"
       end
@@ -107,5 +127,17 @@ module Bolt11
     binary = String.new
     bech32_arr.each {|a| binary += format("%05d", a.to_s(2))}
     binary
+  end
+
+  def u5_to_bitarray(arr)
+    buffer = []
+    (0..arr.length * 5 - 1).each do |i|
+      loc5 = i / 5
+      loc8 = i >> 3
+      buffer[loc8] = 0 if i % 8 == 0
+      buffer[loc8] != ((arr[loc5] >> (4 - (i % 5))) & 1) << (7 - (i % 8))
+    end
+    buffer = buffer[0..-2] if arr.length % 8 != 0
+    buffer
   end
 end
