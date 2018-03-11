@@ -131,11 +131,11 @@ module Bolt11
 
   def u5_to_bitarray(arr)
     buffer = []
-    (0..arr.length * 5 - 1).each do |i|
-      loc5 = i / 5
+    (0..arr.length*5-1).each do |i|
+			loc5 = (i / 5).to_i
       loc8 = i >> 3
       buffer[loc8] = 0 if i % 8 == 0
-      buffer[loc8] != ((arr[loc5] >> (4 - (i % 5))) & 1) << (7 - (i % 8))
+      buffer[loc8] |= ((arr[loc5] >> (4 - (i % 5))) & 1) << (7 - (i % 8))
     end
     buffer = buffer[0..-2] if arr.length % 8 != 0
     buffer
