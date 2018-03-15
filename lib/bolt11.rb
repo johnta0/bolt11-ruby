@@ -53,11 +53,11 @@ module Bolt11
           hex = address.pack('C*').unpack('H*')[0]
           case data[0]
             when 0
-              lnaddr.fallback_addr = Bitcoin::Script.to_p2wpkh(hex).to_addr
+              lnaddr.fallback_addr = #Bech32.encode("ln#{lnaddr.currency}", bitarray_to_u5(hex))
             when 17
               # lnaddr.fallback_addr = Bitcoin.encode_base58_address(hex, Bitcoin.p2sh_version)
             when 18
-              lnaddr.fallback_addr = Bitcoin.encode_base58(hex, Bitcoin.p2sh_version)
+              lnaddr.fallback_addr = Bitcoin.encode_base58(hex)
           end
         when 3
           offset = 0
@@ -129,5 +129,9 @@ module Bolt11
     end
     buffer = buffer[0..-2] if arr.length % 8 != 0
     buffer
+  end
+
+  def bitarray_to_u5(barr)
+    # uninmplemented
   end
 end

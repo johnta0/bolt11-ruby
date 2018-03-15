@@ -2,7 +2,8 @@ module Bolt11
   class LnAddr
     attr_accessor :currency, :amount, :multiplier, :timestamp,
                   :pubkey, :signature, :short_description, :description,
-                  :payment_hash, :description_hash, :expiry, :routing_info
+                  :payment_hash, :description_hash, :expiry, :routing_info,
+                  :fallback_addr
 
     def initialize
       @currency = ""
