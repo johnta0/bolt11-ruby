@@ -55,9 +55,9 @@ module Bolt11
             when 0
               lnaddr.fallback_addr = Bitcoin::Script.to_p2wpkh(hex).to_addr
             when 17
-              lnaddr.fallback_addr = Bitcoin.encode_base58_address(hex, Bitcoin.chain_params.p2sh_version)
+              # lnaddr.fallback_addr = Bitcoin.encode_base58_address(hex, Bitcoin.p2sh_version)
             when 18
-              lnaddr.fallback_addr = Bitcoin.encode_base58(hex, Bitcoin.chain_params.p2sh_version)
+              lnaddr.fallback_addr = Bitcoin.encode_base58(hex, Bitcoin.p2sh_version)
           end
         when 3
           offset = 0
@@ -65,9 +65,9 @@ module Bolt11
             lnaddr.routing_info = RoutingInfo.new(
               bitarray[offset..32],
               bitarray[offset+33..offset+40],
-              from_base32_to_base10([offset+41..offset+44]),
-              from_base32_to_base10([offset+45..offset+48]),
-              from_base32_to_base10([offset+49..offset+50])
+              from_base32_to_base10(bitarray[offset+41..offset+44]),
+              from_base32_to_base10(bitarray[offset+45..offset+48]),
+              from_base32_to_base10(bitarray[offset+49..offset+50])
             )
             offset += 51
           end
